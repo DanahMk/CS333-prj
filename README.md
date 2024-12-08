@@ -38,4 +38,4 @@ This project was developed as part of the **Internet Software Development Course
 ## How to Run the Project
 1. Clone the repository from GitHub:
    ```bash
-   git clone https://github.com/YourRepositoryName/room-booking-system.git
+   git clone https://github.com/DanahMk/CS333-prj.git
