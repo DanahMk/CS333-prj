@@ -2,7 +2,7 @@
 session_start();
 
 
-$conn = new mysqli('localhost', 'root', '', 'CS333-prj');
+$conn = new mysqli('localhost', 'root', '', 'itcs333project');
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
