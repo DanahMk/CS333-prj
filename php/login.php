@@ -119,7 +119,7 @@
         $password = $_POST['password'] ?? '';
 
         // Database connection
-        $con = new mysqli('localhost', 'root', '', 'CS333');
+        $con = new mysqli('localhost', 'root', '', 'itcs333project');
         if ($con->connect_error) {
             die("Connection failed: " . $con->connect_error);
         } else {
