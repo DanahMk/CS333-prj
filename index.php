@@ -158,11 +158,10 @@
         <!--navbar-->
         <nav class="navbar">
             <a href="#home">Home</a>
-            <a href="#about-us">About us</a>
-            <a href="profile.php">Profile</a>
+            <a href="php/profile.php">Profile</a>
             <a href="#rooms">Rooms</a>
-            <a href="#contact">Contact us</a>
-            <a href="#reviews">Reviews</a>
+            <a href="#about-us">About us</a>
+            <a href="#contact-us">Contact us</a>
         </nav>
         <!--navbar end-->
         <div class="icons">
