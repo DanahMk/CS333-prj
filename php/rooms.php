@@ -1,138 +1,216 @@
 <?php
 session_start();
-include 'php/connect.php'; 
-include 'admin/header.php'; 
+require_once('../common-db-settings.php');
 
-// Fetch all rooms from the database
-$sql_rooms = "SELECT * FROM rooms";
-$result_rooms = $conn->query($sql_rooms);
-if ($result_rooms === false) {
-    echo "<p>Error retrieving rooms: " . $conn->error . "</p>";
-    $result_rooms = [];
+// Verify database connection
+if (!$conn) {
+    die("Database connection failed. Please check your configuration.");
+}
+
+try {
+    // Fetch all rooms with error handling
+    $sql_rooms = "SELECT * FROM rooms ORDER BY room_name";
+    $result_rooms = $conn->query($sql_rooms);
+
+    if ($result_rooms === false) {
+        throw new Exception("Error retrieving rooms: " . $conn->error);
+    }
+} catch (Exception $e) {
+    error_log($e->getMessage());
+    $error_message = "An error occurred while retrieving room information.";
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rooms Presentation</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Room Browsing - IT Room Booking System</title>
     <style>
+        /* Custom CSS with responsive design */
         :root {
-            --colorfirst: #8739F9;
-            --colorSecond: #37B9F1;
-            --colorback: #F2F5F5;
-            --colorShadow: #565360;
-            --colorLabel: #908E9B;
+            --primary-color: #243642;
+            --secondary-color: #387478;
+            --background-color: #E2F1E7;
+            --text-color: #333;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         body {
-            background-color: var(--colorback);
-            font-family: 'Poppins', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
 
-        .rooms-section {
-            padding: 40px 20px;
-            background: var(--colorback);
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .rooms-section h1 {
-            text-align: center;
-            color: var(--colorShadow);
-            margin-bottom: 30px;
-            font-size: 2rem;
-        }
-
-        .rooms-grid {
+        .room-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
+            padding: 20px;
         }
 
         .room-card {
             background: white;
             border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
         }
 
         .room-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
-        .room-card img {
+        .room-image {
             width: 100%;
             height: 200px;
             object-fit: cover;
-        }
-
-        .room-content {
-            padding: 20px;
-        }
-
-        .room-content h2 {
-            color: var(--colorShadow);
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-
-        .room-content p {
-            color: var(--colorLabel);
-            font-size: 0.95rem;
+            border-radius: 8px;
             margin-bottom: 15px;
         }
 
-        .room-content .details {
-            font-size: 0.9rem;
-            color: var(--colorSecond);
-            font-weight: bold;
+        .room-info {
+            margin-bottom: 15px;
         }
 
-        .room-content .book-btn {
+        .room-name {
+            font-size: 1.5em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .room-details {
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+
+        .btn {
             display: inline-block;
-            margin-top: 10px;
             padding: 10px 20px;
-            background: var(--colorfirst);
+            background-color: var(--primary-color);
             color: white;
             text-decoration: none;
             border-radius: 5px;
-            font-weight: bold;
-            transition: background 0.3s ease;
+            transition: background-color 0.3s ease;
         }
 
-        .room-content .book-btn:hover {
-            background: var(--colorSecond);
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .room-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .room-name {
+                font-size: 1.3em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .room-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .room-card {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
-<section class="rooms-section">
-    <h1>Our <span>Rooms</span></h1>
-    <div class="rooms-grid">
-        <?php if ($result_rooms && $result_rooms->num_rows > 0): ?>
-            <?php while ($room = $result_rooms->fetch_assoc()): ?>
-                <div class="room-card">
-                    <img src="uploads/<?php echo htmlspecialchars($room['image']); ?>" alt="<?php echo htmlspecialchars($room['room_name']); ?>">
-                    <div class="room-content">
-                        <h2><?php echo htmlspecialchars($room['room_name']); ?></h2>
-                        <p><?php echo htmlspecialchars($room['description']); ?></p>
-                        <div class="details">
-                            Capacity: <?php echo htmlspecialchars($room['capacity']); ?> People <br>
-                            Features: <?php echo htmlspecialchars($room['features']); ?>
-                        </div>
-                        <a href="book-room.php?id=<?php echo htmlspecialchars($room['id']); ?>" class="book-btn">Book Now</a>
-                    </div>
-                </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <p>No rooms available...</p>
+    <div class="container">
+        <h1>Available Rooms</h1>
+
+        <?php if (isset($error_message)): ?>
+            <div class="error-message">
+                <?php echo htmlspecialchars($error_message); ?>
+            </div>
         <?php endif; ?>
+
+        <div class="room-grid">
+            <?php 
+            if (isset($result_rooms) && $result_rooms->num_rows > 0):
+                while ($room = $result_rooms->fetch_assoc()):
+            ?>
+                <div class="room-card">
+                    <?php if (!empty($room['image'])): ?>
+                        <img 
+                            src="../images/<?php echo htmlspecialchars($room['image']); ?>" 
+                            alt="<?php echo htmlspecialchars($room['room_name']); ?>"
+                            class="room-image"
+                        >
+                    <?php endif; ?>
+
+                    <div class="room-info">
+                        <h2 class="room-name"><?php echo htmlspecialchars($room['room_name']); ?></h2>
+                        <p class="room-details">
+                            <strong>Capacity:</strong> 
+                            <?php echo htmlspecialchars($room['capacity']); ?> people
+                        </p>
+                        <p class="room-details">
+                            <strong>Equipment:</strong> 
+                            <?php echo htmlspecialchars($room['equipment']); ?>
+                        </p>
+                    </div>
+
+                    <a href="room_details.php?room_id=<?php echo $room['id']; ?>" class="btn">
+                        View Details
+                    </a>
+                </div>
+            <?php 
+                endwhile;
+            else:
+            ?>
+                <p>No rooms are currently available.</p>
+            <?php endif; ?>
+        </div>
     </div>
-</section>
+
+    <script>
+        // Add any necessary JavaScript functionality here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Example: Add loading state for images
+            const images = document.querySelectorAll('.room-image');
+            images.forEach(img => {
+                img.addEventListener('load', function() {
+                    this.style.opacity = '1';
+                });
+            });
+        });
+    </script>
 </body>
 </html>
-<?php $conn->close(); ?>
+
+<?php
+// Clean up
+if (isset($result_rooms)) {
+    $result_rooms->close();
+}
+if (isset($conn)) {
+    $conn->close();
+}
+?>
