@@ -1,30 +1,36 @@
 <?php
-// Check if a session has already been started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+
+// Database credentials
+$host = 'localhost';
+$username = 'root';
+$password = '';
+$dbname = 'itcs333project';
+
+// Create connection
+$conn = new mysqli($host, $username, $password);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Enable detailed error reporting for debugging during development
-// Remove or comment out in production to avoid exposing sensitive information
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+// Check if database exists, if not create it
+$sql = "CREATE DATABASE IF NOT EXISTS $dbname";
+if ($conn->query($sql) === TRUE) {
+    // Select the database
+    $conn->select_db($dbname);
+    
+    // SQL to create registration table
+    $sql_registration = "CREATE TABLE IF NOT EXISTS registration (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        email VARCHAR(50) NOT NULL,
+        number BIGINT(8) NOT NULL,
+        gender ENUM('m','f') NOT NULL
+    )";
 
-try {
-    // Create a new MySQL connection
-    $conn = new mysqli('localhost', 'root', '', 'itcs333project', 3306); // Adjust the port if necessary
-
-    // Check the connection
-    if ($conn->connect_error) {
-        throw new Exception("Connection failed: " . $conn->connect_error);
-    }
-
-} catch (Exception $e) {
-    // Log the error to a file (or handle it as needed)
-    error_log("Database connection error: " . $e->getMessage());
-
-    // Display a generic error message to the user
-    die("We are experiencing technical issues. Please try again later.");
+    // Create tables
+    $conn->query($sql_registration);
 }
-
-// You can add additional code here, such as setting character encoding
-$conn->set_charset("utf8mb4");
 ?>
