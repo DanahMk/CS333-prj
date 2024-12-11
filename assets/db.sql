@@ -41,7 +41,7 @@ CREATE TABLE `registration` (
 --
 
 INSERT INTO `registration` (`id`, `username`, `password`, `email`, `number`, `gender`) VALUES
-(1, 'fatima matrook', '$2y$10$e2jbLSWogFvmA', 'fatima1@gmail.com', 34343434, 'f'),
+(1, 'SaeedaAlansary', '$2y$10$e2jbLSWogFvmA', 'Saeeda1@gmail.com', 34343434, 'f'),
 (3, 'ali', '$2y$10$9IsG9B/SxMglO', 'ali@gmail.com', 24242424, 'm');
 
 --
@@ -108,4 +108,12 @@ COMMIT;
 ALTER TABLE `rooms` ADD `image` VARCHAR(255) NOT NULL;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;                                                                                        
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;      
+
+
+CREATE TABLE IF NOT EXISTS comments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
