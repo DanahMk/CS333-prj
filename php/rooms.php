@@ -1,7 +1,7 @@
 <?php
 session_start();
-include 'connect.php'; 
-include 'header.php'; 
+include 'php/connect.php'; 
+include 'admin/header.php'; 
 
 // Fetch all rooms from the database
 $sql_rooms = "SELECT * FROM rooms";
