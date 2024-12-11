@@ -51,7 +51,7 @@ include 'new_reg.php';
             <button type="submit" class="oval-button">Register</button>
         </form>
         <div class="links">
-            <a href="login.php">Already Registered? Login Here</a>
+            <a href="php/login.php">Already Registered? Login Here</a>
         </div>
          <!-- Link to the external script -->
     <script src="validation.js"></script>
