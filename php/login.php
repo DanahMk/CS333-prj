@@ -14,20 +14,21 @@
             display: flex; 
             justify-content: center;
             align-items: center; 
-            background: var(--forth-color);}
+            background: var(--forth-color);
+        }
 
         :root {
             --first-color: #243642;
             --second-color: #387478;
             --third-color: #629584;
-            --forth-color: #E2F1E7;}
+            --forth-color: #E2F1E7;
+        }
 
         h2 {
             text-align: center;
             color: #333;
-            margin: 10; }
+        }
 
-            
         form {
             background: var(--forth-color); 
             padding: 20px; 
@@ -36,14 +37,17 @@
             max-width: 400px; 
             width: 100%; 
         }
+
         .input-group {
             margin-bottom: 15px; 
         }
+
         label {
             display: block; 
             margin-bottom: 5px;
             color: #555; 
         }
+
         input[type="text"], input[type="password"] {
             width: 100%; 
             padding: 10px; 
@@ -51,6 +55,7 @@
             border-radius: 4px; 
             box-sizing: border-box; 
         }
+
         .btn {
             width: 100%; 
             padding: 10px; 
@@ -61,21 +66,26 @@
             cursor: pointer; 
             font-size: 16px;
         }
+
         .btn:hover {
             background: var(--second-color);
         }
+
         p {
             text-align: center; 
             margin-top: 15px;
             color: var(--second-color);
         }
+
         a {
             color: #007bff; 
             text-decoration: none; 
         }
+
         a:hover {
             text-decoration: underline; 
         }
+
         .error {
             color: red;
             text-align: center;
@@ -83,15 +93,14 @@
     </style>
 </head>
 <body>
-
-    <form method="post" action="">
+    <form method="post" action="login.php">
         <h2>Login</h2>
         
         <!-- Display error messages -->
         <?php
         session_start();
         if (isset($_SESSION['login_error'])) {
-            echo '<p class="error">' . $_SESSION['login_error'] . '</p>';
+            echo '<p class="error">' . htmlspecialchars($_SESSION['login_error']) . '</p>';
             unset($_SESSION['login_error']);
         }
         ?>
@@ -114,40 +123,48 @@
 
     <?php
     // Handle login
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
+        // Sanitize and retrieve input
+        $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+        $password = $_POST['password'];
 
         // Database connection
         $con = new mysqli('localhost', 'root', '', 'itcs333project');
+
         if ($con->connect_error) {
             die("Connection failed: " . $con->connect_error);
-        } else {
-            // Check for user in the database
-            $stmt = $con->prepare("SELECT * FROM registration WHERE email = ? OR username = ?");
-            $stmt->bind_param("ss", $email, $email);
-            $stmt->execute();
-            $stmt_result = $stmt->get_result();
+        }
 
-            if ($stmt_result->num_rows > 0) {
-                $data = $stmt_result->fetch_assoc();
-                if (password_verify($password, $data['password'])) {
-                    // Start session and set user data
-                    $_SESSION['user_id'] = $data['username']; // or any other identifier
-                    echo "Successfully logged in.";
-                    // Redirect to a protected page or dashboard
-                    header("Location: dashboard.php"); // Adjust to your dashboard page
-                    exit();
-                } else {
-                    $_SESSION['login_error'] = "Invalid email or password.";
-                }
+        // Check for user in the database
+        $stmt = $con->prepare("SELECT * FROM registration WHERE email = ? OR username = ?");
+        $stmt->bind_param("ss", $email, $email);
+        $stmt->execute();
+        $stmt_result = $stmt->get_result();
+
+        if ($stmt_result->num_rows > 0) {
+            $data = $stmt_result->fetch_assoc();
+            if (password_verify($password, $data['password'])) {
+                // Start session and set user data
+                $_SESSION['user_id'] = $data['id']; // or another identifier
+                $_SESSION['username'] = $data['username'];
+                $_SESSION['email'] = $data['email'];
+
+                // Redirect to a protected page or dashboard
+                header("Location: ../index.php");
+                exit();
             } else {
                 $_SESSION['login_error'] = "Invalid email or password.";
             }
-
-            $stmt->close();
-            $con->close();
+        } else {
+            $_SESSION['login_error'] = "Invalid email or password.";
         }
+
+        $stmt->close();
+        $con->close();
+
+        // Redirect back to the login page
+        header("Location: ../login.php");
+        exit();
     }
     ?>
 </body>
